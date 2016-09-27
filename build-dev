@@ -1,0 +1,7 @@
+cd main \
+ && lein clean \
+ && lein cljsbuild once dev
+cd -
+cd view \
+ && lein clean \
+ && lein cljsbuild once dev

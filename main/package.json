@@ -1,0 +1,15 @@
+{
+  "name": "classloader-vis",
+  "version": "1.0.0",
+  "description": "Gradle ClassLoader hierarchy visualization tool.",
+  "main": "target/compiled/main.js",
+  "scripts": {
+    "test": "lein test",
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron-prebuilt": "^1.4.1"
+  }
+}

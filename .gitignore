@@ -1,0 +1,8 @@
+figwheel_server.log
+pom.xml
+*jar
+.lein-deps-sum
+.lein-repl-history
+.lein-plugins/
+.repl
+.nrepl-port
