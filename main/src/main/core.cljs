@@ -61,13 +61,6 @@
   []
   (browser-window. (clj->js {:width 800 :height 600})))
 
-(defn make-child [parent url]
-  (doto (browser-window. (clj->js {:parent parent :modal true}))
-    (.loadURL url)))
-
-(defn load-clojure [window]
-  (.loadURL window "http://clojure.org"))
-
 (defn home [window]
   (.loadURL window (str "file:///" (.getAppPath app) "/../view/resources/public/index.html")))
 
@@ -87,11 +80,8 @@
          (.preventDefault event)
          (on-open-file path))))
 
-;; do nothing entry point
 (defn- main []
   (enable-console-print!)
-  (println "This text is printed from src/main/core.cljs. Go ahead and edit it and see reloading in action.")
-
   (.on app "will-finish-launching" on-app-will-finish-launching)
   (.on app "ready" on-app-ready)
   (.on app "window-all-closed" on-app-window-all-closed))
