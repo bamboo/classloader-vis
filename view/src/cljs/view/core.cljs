@@ -139,15 +139,23 @@
 (def ipcRenderer (.-ipcRenderer electron))
 (def remote-app (-> electron .-remote .-app))
 
+(defn load-model-file [path]
+  (re-frame/dispatch [:update-model (model/load-json-file path)]))
+
 (defn on-open-file [event path]
-  (re-frame/dispatch [:update-model (model/load-json-file path)])
+  (load-model-file path)
   (.addRecentDocument remote-app path))
 
 (defn setup-open-file-handler []
   (.on ipcRenderer "open-file" on-open-file))
 
+(defn load-sample-model []
+  (load-model-file
+   (str (.getAppPath remote-app) "/../samples/gradle-script-kotlin-multi-project-failure.json")))
+
 (defn ^:export init []
   (re-frame/dispatch-sync [:initialize-db])
+  (load-sample-model)
   (setup-open-file-handler)
   (dev-setup)
   (mount-root))
