@@ -1,5 +1,6 @@
 (ns view.db
-  (:require [re-frame.core :as re-frame :refer [subscribe dispatch]]
+  (:require [clojure.string :as str]
+            [re-frame.core :as re-frame :refer [subscribe dispatch]]
             [view.model :as model]))
 
 (def default-db
@@ -57,5 +58,4 @@
     (subscribe [:model])])
 
  (fn [[filter model] _]
-   (model/->network-data
-    (model/filter-class-loaders model filter))))
+   (model/->network-data model (str/trim filter))))

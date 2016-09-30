@@ -14,19 +14,41 @@
         (inc (str/last-index-of label "."))
         (str/last-index-of label "@")))
 
-(defn class-loader-node-color [{:keys [classPath]}]
-  (let [files (count classPath)]
-    (if (>= files 1)
-      "cyan"
-      "lightblue")))
+(defn some-includes? [filter classPath]
+  (some #(str/includes? % filter) classPath))
 
-(defn class-loader-nodes [data]
+(defn has-class-path-including? [name {:keys [classPath]}]
+  (some-includes? filter classPath))
+
+(def node-styles {:empty {:color "#E4EEFB"
+                          :font {:color "#5a5a5a"}}
+
+                  :has-files {:color "#CFDFF5"
+                              :font {:color "#4a4a4a"}}
+
+                  :has-matching-files {:color {:background "#5374A1"
+                                               :border "#10315E"
+                                               :highlight {:background "#214577" :border "#10315E"}}
+                                       :font {:color "#faeaea"}}
+
+                  :scope {:color "#FFEFC0"
+                          :font {:color "#5a5a5a"}}})
+
+(defn class-loader-style [{:keys [classPath]} filter]
+  (if (empty? classPath)
+    :empty
+    (if (and (not (str/blank? filter))
+             (some-includes? filter classPath))
+      :has-matching-files
+      :has-files)))
+
+(defn class-loader-nodes [data filter]
   (->> data
        :classLoaders
        (map
         #(-> %
              (update :label prettify-label)
-             (assoc :color (class-loader-node-color %))))))
+             (merge (get node-styles (class-loader-style % filter)))))))
 
 (defn edges-for-node [{:keys [id parents]}]
   (map #(do {:from id :to % :arrows "to"}) parents))
@@ -39,7 +61,9 @@
        :scopes
        (map-indexed
         (fn [id scope]
-          (assoc scope :id id :shape "box" :color "red")))))
+          (-> scope
+              (assoc :id id :shape "box")
+              (merge (:scope node-styles)))))))
 
 (defn scope-hierarchy-edges
   "Compute the edges connecting each scope to its parent."
@@ -66,16 +90,13 @@
 (defn concatv [& colls]
   (vec (apply concat colls)))
 
-(defn ->network-data [class-loader-data]
-  (let [nodes (class-loader-nodes class-loader-data)
+(defn ->network-data [class-loader-data filter]
+  (let [nodes (class-loader-nodes class-loader-data filter)
         edges (class-loader-edges nodes)
         s-nodes (scope-nodes class-loader-data)
         s-edges (scope-edges s-nodes)]
     {:nodes (concatv nodes s-nodes)
      :edges (concatv edges s-edges)}))
-
-(defn has-class-path-including? [name {:keys [classPath]}]
-  (some #(str/includes? % name) classPath))
 
 (defn filter-class-loaders [model name]
   (let [pattern (str/trim name)]
